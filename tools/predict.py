@@ -4,6 +4,7 @@
 
 import os
 import sys
+import yaml
 import pathlib
 __dir__ = pathlib.Path(os.path.abspath(__file__))
 sys.path.append(str(__dir__))
@@ -50,13 +51,13 @@ class Pytorch_model:
         print('device:', self.device)
         checkpoint = torch.load(model_path, map_location=self.device)
 
-        config = checkpoint['config']
+        config = yaml.load(open('/content/DBNet.pytorch/config/icdar2015_dcn_resnet18_FPN_DBhead_polyLR.yaml','r'))
         config['arch']['backbone']['pretrained'] = False
         self.model = build_model(config['arch'])
         self.post_process = get_post_processing(config['post_processing'])
         self.post_process.box_thresh = post_p_thre
         self.img_mode = config['dataset']['train']['dataset']['args']['img_mode']
-        self.model.load_state_dict(checkpoint['state_dict'])
+        self.model.load_state_dict(torch.load('/content/DBNet.pytorch/ic15_resnet18'))
         self.model.to(self.device)
         self.model.eval()
 
